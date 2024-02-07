@@ -11,19 +11,23 @@ import { CartContext } from "../../contexts/cart.context";
 
 import { signOutHandler } from "../../utils/firebase/firebase.utils";
 
-import "./navigation.styles.scss";
+import {
+  NavigationContainer,
+  LogoContainer,
+  NavLinksContainer,
+} from "./navigation.styles";
 
 const Navigation = () => {
   const { currentUser } = useContext(UserContext);
-  const { isCartOpen } = useContext(CartContext);
+  const { isOpen } = useContext(CartContext);
 
   return (
     <Fragment>
-      <div className="navigation">
-        <Link className="logo-container" to="/">
+      <NavigationContainer>
+        <LogoContainer to="/">
           <Logo className="logo" />
-        </Link>
-        <div className="nav-links-container">
+        </LogoContainer>
+        <NavLinksContainer>
           <Link className="nav-link" to="/shop">
             SHOP
           </Link>
@@ -38,10 +42,10 @@ const Navigation = () => {
             </Link>
           )}
           <CartIcon />
-        </div>
+        </NavLinksContainer>
 
-        {isCartOpen && <CartDropdown />}
-      </div>
+        {isOpen && <CartDropdown />}
+      </NavigationContainer>
       <Outlet />
     </Fragment>
   );

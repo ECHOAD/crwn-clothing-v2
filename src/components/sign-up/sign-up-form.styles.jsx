@@ -1,4 +1,8 @@
-.sign-up-container {
+import styled from "styled-components";
+import { BaseButton } from "../button/button.styles";
+
+
+export const SignUpContainer = styled.div`
   display: flex;
   flex-direction: column;
   width: 380px;
@@ -7,11 +11,11 @@
     margin: 10px 0;
   }
 
-  button{
+  ${BaseButton}{
     @media screen and (max-width: 800px) {
       width: 100%;
     
     }
   }
-}
+`;
 
