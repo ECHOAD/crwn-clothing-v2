@@ -1,5 +1,5 @@
-import { useContext } from "react";
-import { CartContext } from "../../contexts/cart.context";
+import { useSelector, useDispatch } from "react-redux";
+
 import InputSpinner from "../input-spinner/input-spinner.component";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrashAlt } from "@fortawesome/free-regular-svg-icons";
@@ -17,17 +17,30 @@ import {
   QuantityLabel,
 } from "./checkout-item.styles";
 
+import { selectCartItems } from "../../store/cart/cart.selector";
+import {
+  addItemToCart,
+  removeItemToCart,
+  clearItemInCart,
+} from "../../store/cart/cart.action";
+
 const CheckoutItem = ({ cartItem }) => {
+  const cartItems = useSelector(selectCartItems);
+  const dispath = useDispatch();
+
+  const addItemToCartHandler = () => {
+    dispath(addItemToCart(cartItems, cartItem));
+  };
+
+  const removeItemFromCartHandler = () => {
+    dispath(removeItemToCart(cartItems, cartItem));
+  };
+
+  const clearItemFromCartHandler = () => {
+    dispath(clearItemInCart(cartItems, cartItem));
+  };
+
   const { imageUrl, name, quantity, price } = cartItem;
-  const { addItem, removeItem, clearItem } = useContext(CartContext);
-
-  const addItemToCart = () => {
-    addItem(cartItem);
-  };
-
-  const removeItemFromCart = () => {
-    removeItem(cartItem);
-  };
 
   return (
     <CheckoutItemContainer>
@@ -35,7 +48,10 @@ const CheckoutItem = ({ cartItem }) => {
       <Content>
         <ConentHeader>
           <span className="name">{name}</span>
-          <Button className="remove-button" onClick={() => clearItem(cartItem)}>
+          <Button
+            className="remove-button"
+            onClick={() => clearItemFromCartHandler(cartItem)}
+          >
             <FontAwesomeIcon icon={faTrashAlt} />
           </Button>
         </ConentHeader>
@@ -51,8 +67,8 @@ const CheckoutItem = ({ cartItem }) => {
 
             <InputSpinner
               value={quantity}
-              onIncrement={addItemToCart}
-              onDecrement={removeItemFromCart}
+              onIncrement={addItemToCartHandler}
+              onDecrement={removeItemFromCartHandler}
             />
           </QuantityContainer>
         </ContentFooter>

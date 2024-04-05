@@ -1,5 +1,4 @@
-import { useContext } from "react";
-import { CartContext } from "../../contexts/cart.context";
+import { useSelector, useDispatch } from "react-redux";
 
 import InputSpinner from "../input-spinner/input-spinner.component";
 import {
@@ -11,16 +10,21 @@ import {
   ItemDetailsInfoPrice,
 } from "./cart-item.styles";
 
+import { selectCartItems } from "../../store/cart/cart.selector";
+import { addItemToCart, removeItemToCart } from "../../store/cart/cart.action";
+
 const CartItem = ({ item }) => {
+  const cartItems = useSelector(selectCartItems);
+  const dispath = useDispatch();
+
   const { imageUrl, name, price, quantity } = item;
-  const { addItem, removeItem } = useContext(CartContext);
 
   const handleIncrement = () => {
-    addItem(item);
+    dispath(addItemToCart(cartItems, item));
   };
 
   const handleDecrement = () => {
-    removeItem(item);
+    dispath(removeItemToCart(cartItems, item));
   };
 
   return (
