@@ -19,6 +19,7 @@ import {
   writeBatch,
   query,
   getDocs,
+  where,
 } from "firebase/firestore";
 
 // Your web app's Firebase configuration
@@ -48,10 +49,10 @@ export const signInWithGooglePopup = () =>
 export const signInWithGoogleRedirect = () =>
   signInWithRedirect(auth, googleProvider);
 
-export const signInWithNativeEmailAndPasswordHandler = async (
+export const signInWithNativeEmailAndPasswordHandler = async ({
   email,
-  password
-) => {
+  password,
+}) => {
   if (!email || !password) return;
 
   try {
@@ -80,14 +81,19 @@ export const addCollectionAndDocuments = async (
   return await batch.commit();
 };
 
-export const getCategoriesAndDocuments = async () => {
-  const categoriesRef = collection(db, "categories");
-  const q = query(categoriesRef);
+const getDocuments = async (collectionKey, ...criteria) => {
+  const itemsRef = collection(db, collectionKey);
+  const q = criteria.length ? query(itemsRef, where(...criteria)) : itemsRef;
 
   const querySnapshot = await getDocs(q);
-  return querySnapshot.docs.map(docSnapshot => docSnapshot.data());
+  return querySnapshot.docs.map((docSnapshot) => docSnapshot.data());
 };
 
+export const getCategoriesAndDocuments = async () => {
+  return getDocuments("categories");
+};
+
+// TODO: Trying to implement SAGAS with Firebase
 export const createUserDocumentFromAuth = async (
   userAuth,
   additionalData = {}
@@ -95,14 +101,15 @@ export const createUserDocumentFromAuth = async (
   if (!userAuth) return;
 
   const userRef = doc(db, "users", userAuth.uid);
-  const userSnap = await getDoc(userRef);
+  let userSnap = await getDoc(userRef)
+  console.log(userSnap);
 
   if (!userSnap.exists()) {
     const { displayName, email } = userAuth;
     const createdAt = new Date();
 
     try {
-      await setDoc(userRef, {
+      userSnap = await setDoc(userRef, {
         displayName,
         email,
         createdAt,
@@ -113,7 +120,7 @@ export const createUserDocumentFromAuth = async (
     }
   }
 
-  return userRef;
+  return userSnap;
 };
 
 export const createAuthUserWithEmailAndPassword = async (email, password) => {
@@ -139,4 +146,17 @@ export const onAuthStateChangedHandler = (callback) => {
   });
 
   return unsubscribe;
+};
+
+export const getCurrentUser = () => {
+  return new Promise((resolve, reject) => {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (user) => {
+        unsubscribe();
+        resolve(user);
+      },
+      reject
+    );
+  });
 };
